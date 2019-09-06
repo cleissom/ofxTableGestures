@@ -66,7 +66,7 @@ class FigureGraphic: public Graphic
         {
             ofPushMatrix();
             ofMultMatrix(transformation);
-            glGetDoublev(GL_MODELVIEW_MATRIX,figure->getMatrix().data);
+            glGetFloatv(GL_MODELVIEW_MATRIX,figure->getMatrix().data);
             ofPopMatrix();
         }
         else

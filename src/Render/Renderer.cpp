@@ -35,13 +35,13 @@
 
 #define DISTORTION_PATH "calibration.conf"
 
-double Renderer::height_offset = 1;
-double Renderer::width_offset=1;
-double Renderer::center_x=0;
-double Renderer::center_y=0;
-double Renderer::angle_h=0;
-double Renderer::angle_w=0;
-double Renderer::angle=0;
+float Renderer::height_offset = 1;
+float Renderer::width_offset=1;
+float Renderer::center_x=0;
+float Renderer::center_y=0;
+float Renderer::angle_h=0;
+float Renderer::angle_w=0;
+float Renderer::angle=0;
 
 Renderer::Renderer():
     DistortionPath(ofToDataPath(DISTORTION_PATH)),
@@ -145,12 +145,12 @@ void Renderer::LoadDefaultValues(){
     angle=0;
 }
 
-void Renderer::SetIdentity(double* _matrix){
+void Renderer::SetIdentity(float* _matrix){
     for (int i=0;i<4;i++)
         for (int j=0;j<4;j++)
             _matrix[(i*4)+j] = (i==j)?1:0;
 }
 
-double * Renderer::GetDistortionMatrix(){
+float * Renderer::GetDistortionMatrix(){
     return matrix;
 }

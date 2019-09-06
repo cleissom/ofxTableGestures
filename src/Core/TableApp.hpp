@@ -83,7 +83,7 @@ class TableApp {
             ///cursor status before enable simulator.
             bool was_cursor_hide;
         #endif
-//        static double* calibration_matrix;
+//        static float* calibration_matrix;
         int & squaredInterface;
 
         ///Flag to recalculate the ignore collision matrix.
@@ -105,7 +105,7 @@ class TableApp {
         void DrawHelp();
         ///returns the biggest side of the screen
         static int GetSquareSide();
-//        static double* GetTransformationMatrix(){return calibration_matrix;}
+//        static float* GetTransformationMatrix(){return calibration_matrix;}
         ///Key funcs, they only repports the ones that are not used by the system
         virtual void KeyPressed  (int key){}
 		virtual void KeyReleased (int key){}

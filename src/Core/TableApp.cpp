@@ -135,7 +135,7 @@ void TableApp::DrawInfo()
 {
     if(show_info)
     {
-        glPushMatrix();
+        ofPushMatrix();
         glTranslatef(50.0f,50.0f,0.0f);
         ofSetHexColor(0x00FF00);
         std::stringstream msg;
@@ -147,7 +147,7 @@ void TableApp::DrawInfo()
         msg << "Calibration data:" << std::endl;
         msg << renderer->ToString();
         ofDrawBitmapString(msg.str(), 0, 0);
-        glPopMatrix();
+        ofPopMatrix();
     }
 }
 
@@ -155,7 +155,7 @@ void TableApp::DrawHelp()
 {
     if(show_help)
     {
-        glPushMatrix();
+        ofPushMatrix();
         glTranslatef(50.0f,200.0f,0.0f);
         ofSetHexColor(0x00FF00);
         std::stringstream msg;
@@ -178,7 +178,7 @@ void TableApp::DrawHelp()
         msg << "  z - select." << std::endl;
         #endif
         ofDrawBitmapString(msg.str(), 0, 0);
-        glPopMatrix();
+        ofPopMatrix();
     }
 }
 
@@ -208,7 +208,7 @@ void TableApp::draw(){
     if(!matrix_updated)
     {
         matrix_updated = true;
-        glGetDoublev(GL_MODELVIEW_MATRIX,Figures::CollisionHelper::ignore_transformation_matrix.data);
+        glGetFloatv(GL_MODELVIEW_MATRIX,Figures::CollisionHelper::ignore_transformation_matrix.data);
         Figures::CollisionHelper::ignore_transformation_matrix = Figures::CollisionHelper::ignore_transformation_matrix.GetInverse();
     }
     ///Draws all 'Graphics'

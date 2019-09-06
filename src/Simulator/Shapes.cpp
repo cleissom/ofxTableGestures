@@ -95,7 +95,7 @@ void shapeSquare::draw(){
 }
 
 void shapeCircle::draw(){
-    ofCircle(0,0,CIRCLE_RADIUS);
+    ofDrawCircle(0,0,CIRCLE_RADIUS);
 }
 
 void shapeStar::draw()

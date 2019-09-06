@@ -36,7 +36,7 @@ class InputGestureOSC : public Singleton<InputGestureOSC>, public Graphic
         while(OscReceiver.hasWaitingMessages())
         {
             ofxOscMessage m;
-            OscReceiver.getNextMessage(&m);
+            OscReceiver.getNextMessage(m);
 
                 EventNewOScMessageArgs args;
                 args.m = m;

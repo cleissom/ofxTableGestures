@@ -167,8 +167,8 @@ namespace simulator
         ofFill();
         ofPushMatrix();
         ofSetColor(100,100,100);
-        ofRect(ofGetWidth()-0.09*ofGetWidth(),0,0.09*ofGetWidth(),ofGetHeight());
-        ofRect(0,ofGetHeight()-0.09*ofGetHeight(),ofGetWidth()-0.09*ofGetWidth(),0.09*ofGetHeight());
+        ofDrawRectangle(ofGetWidth()-0.09*ofGetWidth(),0,0.09*ofGetWidth(),ofGetHeight());
+        ofDrawRectangle(0,ofGetHeight()-0.09*ofGetHeight(),ofGetWidth()-0.09*ofGetWidth(),0.09*ofGetHeight());
         ofPopMatrix();
         //Draw info...
         ofPushMatrix();

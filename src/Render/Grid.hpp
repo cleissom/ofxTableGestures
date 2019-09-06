@@ -44,6 +44,11 @@ class Grid{
         void Draw(bool calibration_enabled, int calibration_mode);
         void Resize();
     private:
+        void CallList1();
+        void CallList2();
+        void CallList3();
+        void CallList4();
+        void CallList5();
         void GenerateOpenGL_lists();
         void RenderArrow_one(int size);
         void RenderArrow_two(int size);

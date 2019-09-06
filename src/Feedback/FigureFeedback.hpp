@@ -66,7 +66,7 @@ class HistoryFigure{
         void draw(){
             ofPushMatrix();
             ofTranslate(dobj->getX(),dobj->getY());
-            ofRotate(dobj->angle*180/M_PI);
+            ofRotateDeg(dobj->angle*180/M_PI);
             ofScale(scale_factor,scale_factor,1);
             ofScale(OBJECT_SIZE,OBJECT_SIZE,1);
             shapes::Figure_shape::Instance().drawShape(dobj->f_id);

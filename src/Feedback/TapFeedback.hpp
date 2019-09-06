@@ -73,7 +73,7 @@ class TapFeedback : public Graphic
             ofSetLineWidth(4);
             ofSetColor(R,G,B,alpha255);
             ofEnableAlphaBlending();
-            ofCircle(p.getX(),p.getY(),radius);
+            ofDrawCircle(p.getX(),p.getY(),radius);
             ofDisableAlphaBlending();
             ofPopStyle();
         }

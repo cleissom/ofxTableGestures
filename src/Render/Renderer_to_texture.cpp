@@ -48,16 +48,16 @@ void Renderer_to_texture::EndDistortion(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     ///aplies some transformations
     ofSetColor(255,255,255);
-    glPushMatrix();
-    glTranslated(center_x,center_y,0);
+    ofPushMatrix();
+    glTranslatef(center_x,center_y,0);
     glTranslatef((ofGetWidth())/2,(ofGetHeight())/2,0);
-    glRotated(angle,0,0,1);
-    glRotated(angle_h,1,0,0);
-    glRotated(angle_w,0,1,0);
-    glScaled(width_offset,height_offset,1);
+    glRotatef(angle,0,0,1);
+    glRotatef(angle_h,1,0,0);
+    glRotatef(angle_w,0,1,0);
+    glScalef(width_offset,height_offset,1);
     glTranslatef(-(ofGetWidth())/2,-(ofGetHeight())/2,0);
     ///Draws the texture
     texScreen.draw(0,0);
-    glPopMatrix();
+    ofPopMatrix();
 }
 

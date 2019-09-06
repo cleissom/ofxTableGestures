@@ -101,7 +101,7 @@ class HistoryPoint : private DirectPoint{
             static int & B = ofxGlobalConfig::getRef("FEEDBACK:CURSOR:COLOR:B",0);
             ///Draws cursor
             ofSetColor(R,G,B);
-            ofCircle(xpos,ypos,0.007);
+            ofDrawCircle(xpos,ypos,0.007);
             ///Draws trace
             ofSetLineWidth(3);
             float actual_time = ofGetElapsedTimef();

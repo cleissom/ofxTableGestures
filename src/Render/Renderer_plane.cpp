@@ -34,17 +34,17 @@
 #include "ofMain.h"
 
 void Renderer_plane::StartDistortion(){
-    glPushMatrix();
-    glTranslated(center_x,center_y,0);
+    ofPushMatrix();
+    glTranslatef(center_x,center_y,0);
     glTranslatef((ofGetWidth())/2,(ofGetHeight())/2,0);
-    glRotated(angle,0,0,1);
-    glRotated(angle_h,1,0,0);
-    glRotated(angle_w,0,1,0);
-    glScaled(width_offset,height_offset,1);
+    glRotatef(angle,0,0,1);
+    glRotatef(angle_h,1,0,0);
+    glRotatef(angle_w,0,1,0);
+    glScalef(width_offset,height_offset,1);
     glTranslatef(-(ofGetWidth())/2,-(ofGetHeight())/2,0);
-    glGetDoublev(GL_MODELVIEW_MATRIX,Renderer::matrix);
+    glGetFloatv(GL_MODELVIEW_MATRIX,Renderer::matrix);
 }
 
 void Renderer_plane::EndDistortion(){
-    glPopMatrix();
+    ofPopMatrix();
 }

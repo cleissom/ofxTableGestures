@@ -148,7 +148,7 @@ namespace simulator{
                 ofSetColor(color);
                 ofTranslate(xpos,ypos);
                 //bug when windows is not a screen rectangle
-                ofCircle(0,0,CURSOR_RADIUS*ofGetHeight());
+                ofDrawCircle(0,0,CURSOR_RADIUS*ofGetHeight());
                 #ifndef ONLY_SIMULATOR
                 ofDisableAlphaBlending();
                 #endif

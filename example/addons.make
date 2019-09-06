@@ -3,3 +3,4 @@ ofxOsc
 ofxGlobalConfig
 ofx2DFigures
 ofxXmlSettings
+ofxPoco

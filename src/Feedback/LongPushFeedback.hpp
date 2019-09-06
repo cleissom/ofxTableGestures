@@ -72,7 +72,7 @@ class LongPushFeedback : public CanLongPush < Graphic >
             ofSetLineWidth(4);
             ofSetColor(255,0,0,alpha255);
             ofEnableAlphaBlending();
-            ofCircle(p.getX(),p.getY(),radius);
+            ofDrawCircle(p.getX(),p.getY(),radius);
             ofDisableAlphaBlending();
             ofPopStyle();
         }

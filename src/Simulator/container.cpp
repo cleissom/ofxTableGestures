@@ -57,7 +57,7 @@ void object::Draw(){
     ofSetColor(255,0,0);
     //rotation line
     ofPushMatrix();
-    ofLine(0,0,0,OBJECT_RADIUS*ofGetHeight()/2);
+    ofDrawLine(0,0,0,OBJECT_RADIUS*ofGetHeight()/2);
     ofPopMatrix();
     ofDisableAlphaBlending();
     ofSetHexColor(0xFFFFFF);

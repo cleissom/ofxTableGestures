@@ -38,27 +38,27 @@ class Renderer{
     public:
         ///Calibration data:
             ///height scale factor
-        static double height_offset;
+        static float height_offset;
             ///width scale factor
-		static double width_offset;
+		static float width_offset;
             ///x position
-		static double center_x;
+		static float center_x;
             ///y position
-		static double center_y;
+		static float center_y;
             ///y rotation angle
-		static double angle_h;
+		static float angle_h;
             ///x rotation angle
-		static double angle_w;
+		static float angle_w;
             ///z rotation angle
-		static double angle;
+		static float angle;
 		///Distortion path file
 		std::string DistortionPath;
         ///Enable/disable distortion flag
         bool distortion_enabled;
     protected:
         ///Distortion matrix to be stored
-        double matrix[16];
-        void SetIdentity(double* _matrix);
+        float matrix[16];
+        void SetIdentity(float* _matrix);
         ///To be rewritted:
         ///Called before draw thing to be distortionate
         virtual void StartDistortion()=0;
@@ -66,7 +66,7 @@ class Renderer{
         virtual void EndDistortion()=0;
     public:
         ///returns the distortion Matrix
-        double * GetDistortionMatrix();
+        float * GetDistortionMatrix();
         ///constructor
         Renderer();
         virtual ~Renderer()=0;
