@@ -70,7 +70,7 @@ class GraphicSmartContainer
 
 struct CompareLayers
 {
-    inline bool operator()(GraphicSmartContainer* object1, GraphicSmartContainer* object2)
+    inline bool operator()(GraphicSmartContainer* object1, GraphicSmartContainer* object2) const
     {
         if (object1->GetLayer() == object2->GetLayer())
             return (object1->created_time < object2->created_time);

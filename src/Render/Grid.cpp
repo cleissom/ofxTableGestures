@@ -67,16 +67,10 @@ void Grid::Draw(bool calibration_enabled, int calibration_mode)
     }
 }
 
-void Grid::CallList1(){
+int Grid::getLineLength(){
     int width = ofGetWidth();
     int height = ofGetHeight();
-    ofSetColor(255,255,255);
-    ofSetLineWidth(4.0f);
     int linelength;
-
-    ofPushMatrix();
-    ///Draws the line-grid depending the dimensions of the screen,
-    ///for the reactable, the grid must be square shaped.
     if(width>height)
     {
         linelength = height;
@@ -94,6 +88,20 @@ void Grid::CallList1(){
         for (int i =0; i<=h_lines; i++)
             ofDrawLine(0, i*(linelength/h_lines) , linelength, i*(linelength/h_lines));
     }
+    return linelength;
+}
+
+void Grid::CallList1(){
+    int width = ofGetWidth();
+    int height = ofGetHeight();
+    ofSetColor(255,255,255);
+    ofSetLineWidth(4.0f);
+    int linelength = getLineLength();
+
+    ofPushMatrix();
+    ///Draws the line-grid depending the dimensions of the screen,
+    ///for the reactable, the grid must be square shaped.
+    
     ofNoFill();
     ///Draws the helping circles of the grid.
     ofSetCircleResolution(60);
@@ -109,7 +117,8 @@ void Grid::CallList2(){
     int height = ofGetHeight();
     ofSetColor(255,255,255);
     ofSetLineWidth(4.0f);
-    int linelength;
+    int linelength = getLineLength();
+
 
     ofPushMatrix();
      if(width>height) glTranslatef((width-height)/2,0,0);
@@ -127,7 +136,7 @@ void Grid::CallList3(){
     int height = ofGetHeight();
     ofSetColor(255,255,255);
     ofSetLineWidth(4.0f);
-    int linelength;
+    int linelength = getLineLength();
 
     ofPushMatrix();
     if(width>height) glTranslatef((width-height)/2,0,0);
@@ -157,7 +166,7 @@ void Grid::CallList4(){
     int height = ofGetHeight();
     ofSetColor(255,255,255);
     ofSetLineWidth(4.0f);
-    int linelength;
+    int linelength = getLineLength();
 
     ofPushMatrix();
     if(width>height) glTranslatef((width-height)/2,0,0);
@@ -174,7 +183,7 @@ void Grid::CallList5(){
     int height = ofGetHeight();
     ofSetColor(255,255,255);
     ofSetLineWidth(4.0f);
-    int linelength;
+    int linelength = getLineLength();
 
     ofPushMatrix();
     if(width>height) glTranslatef((width-height)/2,0,0);
@@ -218,21 +227,27 @@ void Grid::GenerateOpenGL_lists()
 
 void Grid::RenderArrow_one(int size)
 {
-    ofPath Arrow_one;
+    ofPath Arrow;
+
     ofPushMatrix();
-    Arrow_one.moveTo(-0.05*size,0);
-    Arrow_one.lineTo(0,0.1*size);
-    Arrow_one.lineTo(0.05*size,0);
-    Arrow_one.close();
-    // Arrow_one.lineTo(-0.025*size,0);
-    // Arrow_one.lineTo(0-0.0125*size,-0.1*size);
-    // Arrow_one.lineTo(0.0125*size,-0.1*size);
-    // Arrow_one.close();
-    Arrow_one.setStrokeColor(ofColor::blue);
-    Arrow_one.setFillColor(ofColor::red);
-    Arrow_one.setFilled(true);
-    Arrow_one.setStrokeWidth(2);
-    Arrow_one.draw();
+
+    Arrow.moveTo(-0.05*size,0);
+    Arrow.lineTo(0,0.1*size);
+    Arrow.lineTo(0.05*size,0);
+    Arrow.close();
+    Arrow.setStrokeColor(ofColor::blue);
+    Arrow.setFillColor(ofColor::red);
+    Arrow.setFilled(true);
+    Arrow.setStrokeWidth(2);
+    Arrow.draw();
+
+    Arrow.moveTo(-0.025*size,0);
+    Arrow.lineTo(0-0.0125*size,-0.1*size);
+    Arrow.lineTo(0.0125*size,-0.1*size);
+    Arrow.lineTo(0.025*size,0);
+    Arrow.close();
+    Arrow.draw();
+
     ofPopMatrix();
 
     // ofPushMatrix();
@@ -252,6 +267,36 @@ void Grid::RenderArrow_one(int size)
 
 void Grid::RenderArrow_two(int size)
 {
+    ofPath Arrow;
+
+    ofPushMatrix();
+
+    Arrow.moveTo(-0.025*size,0);
+    Arrow.lineTo(0,0.1*size);
+    Arrow.lineTo(0.025*size,0);
+    Arrow.close();
+    Arrow.setStrokeColor(ofColor::blue);
+    Arrow.setFillColor(ofColor::red);
+    Arrow.setFilled(true);
+    Arrow.setStrokeWidth(2);
+    Arrow.draw();
+
+    Arrow.moveTo(-0.0125*size,0);
+    Arrow.lineTo(-0.0125*size,-0.2*size);
+    Arrow.lineTo(0.0125*size,-0.2*size);
+    Arrow.lineTo(0.0125*size,0);
+    Arrow.close();
+    Arrow.draw();
+
+    Arrow.moveTo(-0.025*size,-0.2*size);
+    Arrow.lineTo(0,-0.3*size);
+    Arrow.lineTo(0.025*size,-0.2*size);
+    Arrow.close();
+    Arrow.draw();
+
+    ofPopMatrix();
+
+
     // glBegin(GL_TRIANGLE_STRIP);
     // glVertex2d(-0.025*size,0);
     // glVertex2d(0,0.1*size);
@@ -271,6 +316,44 @@ void Grid::RenderArrow_two(int size)
 }
 
 void Grid::DrawArrow_three(int size){
+    ofPath Arrow;
+
+    ofPushMatrix();
+
+    float arc = M_PI*2-0.7;
+    float sinus = 0;
+    float cosinus = 0;
+    float angle;
+    float offset = M_PI /20;
+	for (angle=0; angle<arc; angle+=arc/60 ){
+		sinus = sin(angle+offset);
+		cosinus = cos(angle+offset);
+		Arrow.lineTo(0.08*sinus*size, 0.08*cosinus*size);
+        Arrow.lineTo(0.1*sinus*size, 0.1*cosinus*size);
+	}
+    Arrow.setStrokeColor(ofColor::blue);
+    Arrow.setFillColor(ofColor::red);
+    Arrow.setFilled(true);
+    Arrow.setStrokeWidth(2);
+    Arrow.close();
+
+
+    float ax = 0.08*sinus - 0.1*sinus;
+    float ay = 0.08*cosinus - 0.1*cosinus;
+    float mod = sqrt(ax*ax + ay*ay);
+    ax = ax/mod;
+    ay = ay/mod;
+    Arrow.moveTo(0.055*sinus*size, 0.055*cosinus*size);
+    Arrow.lineTo(0.125*sinus*size, 0.125*cosinus*size);
+    Arrow.lineTo((-ay*0.05*size)+0.09*sinus*size, (ax*0.05*size)+0.09*cosinus*size);
+    Arrow.close();
+    
+    Arrow.draw();
+
+
+    ofPopMatrix();
+
+
     // glBegin(GL_TRIANGLE_STRIP);
     // float arc = M_PI*2-0.7;
     // float sinus = 0;

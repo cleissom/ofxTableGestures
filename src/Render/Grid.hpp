@@ -44,6 +44,7 @@ class Grid{
         void Draw(bool calibration_enabled, int calibration_mode);
         void Resize();
     private:
+        int getLineLength();
         void CallList1();
         void CallList2();
         void CallList3();

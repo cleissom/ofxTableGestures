@@ -9,14 +9,14 @@ int main( ){
     // ofAppGlutWindow window;
     int width = ofxGlobalConfig::getRef("PROGRAM:WIDTH",1024);
     int height = ofxGlobalConfig::getRef("PROGRAM:HEIGHT",768);
-    // if(ofxGlobalConfig::getRef("PROGRAM:FULLSCREEN",0))
-    //     ofSetupOpenGL(&window, width ,height, OF_GAME_MODE);
-    // else
-    //     ofSetupOpenGL(&window, width ,height, OF_WINDOW);
+    if(ofxGlobalConfig::getRef("PROGRAM:FULLSCREEN",0))
+        ofSetupOpenGL(width ,height, OF_FULLSCREEN);
+    else
+        ofSetupOpenGL(width ,height, OF_WINDOW);
 
     // ofGLWindowSettings settings;
     // auto window = ofCreateWindow(settings);
-    ofSetupOpenGL(300,300, OF_WINDOW);
+    //ofSetupOpenGL(width,height, OF_GAME_MODE);
     //ofSetupOpenGL(&window, width ,height, OF_WINDOW);
 
 	ofRunApp( new testApp());
