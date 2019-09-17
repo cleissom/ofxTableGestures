@@ -7,6 +7,7 @@
 #include "Figure.h"
 #include "CollisionHelper.h"
 #include "Polygon.h"
+#include "ofxPDSP.h"
 
 class testApp : public ofBaseApp{
 
@@ -24,6 +25,14 @@ class testApp : public ofBaseApp{
 		void mousePressed(int x, int y, int button);
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
+
+		void pitch(float arg);
+
+		// pdsp modules
+		pdsp::Engine            engine;
+		pdsp::VAOscillator      osc;
+		pdsp::LFO               lfo;
+		pdsp::ValueControl      pitch_ctrl;
 };
 
 #endif

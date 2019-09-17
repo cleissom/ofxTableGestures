@@ -11,6 +11,39 @@
 #include "FigureGraphic.hpp"
 #include "Alarm.hpp"
 
+class Test2 : public EventClient {
+	// pdsp modules
+	pdsp::Engine            engine;
+	pdsp::VAOscillator      osc;
+	pdsp::LFO               lfo;
+	pdsp::ValueControl      pitch_ctrl;
+
+public:
+	Test2() {
+		this->registerEvent(InputGestureDirectObjects::Instance().updateObject, &Test2::changePitch, this);
+
+		pitch_ctrl >> osc.in_pitch();
+		osc.out_sine() * dB(-12.0f) >> engine.audio_out(0); // connect to left output channel
+		osc.out_sine() * dB(-12.0f) >> engine.audio_out(1); // connect to right right channel
+
+		pitch_ctrl.set(36.0f);
+
+		//engine.listDevices();
+		engine.setDeviceID(1); // REMEMBER TO SET THIS AT THE RIGHT INDEX!!!!
+
+		// start your audio engine !
+		engine.setup(44100, 512, 3);
+	}
+
+	void changePitch(InputGestureDirectObjects::enterObjectArgs & e) {
+		cout << e.object->s_id << endl;
+		float pitch = ofMap(e.object->angle, 0, M_2PI, 36.0f, 72.0f);
+		pitch_ctrl.set(pitch);
+	}
+};
+
+
+
 class Test: public Graphic
 {
     Figures::Polygon polygon;
@@ -47,6 +80,7 @@ class Test: public Graphic
         fg->color.a = 100;
         fg->isHidden(true);
     }
+	
     void enter(InputGestureDirectFingers::enterCursorArgs & e)
     {
         fg->isHidden(false);
@@ -79,7 +113,9 @@ class Test: public Graphic
     }
 };
 
-
+void testApp::pitch(float arg) {
+	
+}
 //--------------------------------------------------------------
 void testApp::setup(){
 
@@ -89,8 +125,11 @@ void testApp::setup(){
         new Test();
     new CursorFeedback();
     new FigureFeedback();
-    //new TapFeedback();
-    //new LongPushFeedback();
+    new TapFeedback();
+    new LongPushFeedback();
+	new Test2();
+
+	
 }
 
 //--------------------------------------------------------------
