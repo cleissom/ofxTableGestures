@@ -30,9 +30,6 @@ class testApp : public ofBaseApp{
 
 		// pdsp modules
 		pdsp::Engine            engine;
-		pdsp::VAOscillator      osc;
-		pdsp::LFO               lfo;
-		pdsp::ValueControl      pitch_ctrl;
 };
 
 #endif
