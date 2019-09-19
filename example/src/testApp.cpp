@@ -38,7 +38,6 @@ public:
 		//patching
 		osc.out_saw() * 2.0f >> drive >> filter >> amp;
 		y_ctrl >> amp.in_mod();
-		y_ctrl * 60.0f >> filter.in_cutoff();
 		filter_cutoff >> filter.in_cutoff();
 		0.3f >> filter.in_reso();
 	}
@@ -134,21 +133,21 @@ public:
 
 	void newObject(DirectObject * object) {
 		int i = object->f_id;
-		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 72.0f);
+		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 84.0f);
 		pitches[i].set(pitch);
-		float amp = ofMap(object->getY(), 0, 1.0f, 1.0f, 0.0f);
+		float amp = ofMap(object->getY(), 0, 1.0f, 1.5f, 0.0f);
 		amps[i].set(amp);
-		float freq = ofMap(object->angle, 0, M_2PI, 0.0f, 100.0f);
+		float freq = ofMap(object->angle, 0, M_2PI, 50.0f, 150.0f);
 		filters[i].set(freq);
 	}
 
 	void updateObject(DirectObject * object) {
 		int i = object->f_id;
-		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 72.0f);
+		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 84.0f);
 		pitches[i].set(pitch);
-		float amp = ofMap(object->getY(), 0, 1.0f, 1.0f, 0.0f);
+		float amp = ofMap(object->getY(), 0, 1.0f, 1.5f, 0.0f);
 		amps[i].set(amp);
-		float freq = ofMap(object->angle, 0, M_2PI, 0.0f, 100.0f);
+		float freq = ofMap(object->angle, 0, M_2PI, 50.0f, 150.0f);
 		filters[i].set(freq);
 
 	}
