@@ -80,10 +80,33 @@ class Test2 : public CanDirectObjects<Graphic> {
 	pdsp::TriggerControl    gate_ctrl;
 	SlideSynth          synth;
 
+	std::vector<SlideSynth> synths;
+	std::vector<pdsp::ValueControl>    pitches;
+	std::vector<pdsp::LFO>          drift_lfo;
+	std::vector <pdsp::ValueControl>               amps;
+	std::vector<pdsp::ValueControl>      filters;
+
 public:
 	Test2() {
 
+		synths.resize(3);
+		pitches.resize(synths.size());
+		filters.resize(synths.size());
+		amps.resize(synths.size());
 
+		for (size_t i = 0; i < synths.size(); ++i) {
+
+			pitches[i] >> synths[i].in("pitch");
+			amps[i] >> synths[i].in_amp();
+			filters[i] >> synths[i].in("filter");
+
+			synths[i] >> engine.audio_out(0);
+			synths[i] >> engine.audio_out(1);
+		}
+
+
+
+		/*
 		pitch_ctrl >> synth.in("pitch"); // patching with in("tag")
 		amp_ctrl >> synth.in_amp(); // patching with custom in_tag()
 		synth * dB(-12.0f) >> engine.audio_out(0);
@@ -95,34 +118,44 @@ public:
 		pitch_ctrl.enableSmoothing(50.0f); // 50ms smoothing
 		amp_ctrl.set(0.0f);
 		amp_ctrl.enableSmoothing(50.0f); // 50ms smoothing
+		*/
+		
 
 
-		engine.setDeviceID(1); // REMEMBER TO SET THIS AT THE RIGHT INDEX!!!!
-		// start your audio engine !
+		//------------SETUPS AND START AUDIO-------------
+#ifdef PC
+		engine.setDeviceID(1);
+#else
+		engine.setDeviceID(0);
+#endif // PC
+
 		engine.setup(44100, 512, 3);
 	}
 
 	void newObject(DirectObject * object) {
+		int i = object->f_id;
 		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 72.0f);
-		pitch_ctrl.set(pitch);
+		pitches[i].set(pitch);
 		float amp = ofMap(object->getY(), 0, 1.0f, 1.0f, 0.0f);
-		amp_ctrl.set(amp);
+		amps[i].set(amp);
 		float freq = ofMap(object->angle, 0, M_2PI, 0.0f, 100.0f);
-		filter_ctrl.set(freq);
+		filters[i].set(freq);
 	}
 
 	void updateObject(DirectObject * object) {
+		int i = object->f_id;
 		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 72.0f);
-		pitch_ctrl.set(pitch);
+		pitches[i].set(pitch);
 		float amp = ofMap(object->getY(), 0, 1.0f, 1.0f, 0.0f);
-		amp_ctrl.set(amp);
+		amps[i].set(amp);
 		float freq = ofMap(object->angle, 0, M_2PI, 0.0f, 100.0f);
-		filter_ctrl.set(freq);
+		filters[i].set(freq);
 
 	}
 
 	void removeObject(DirectObject * object) {
-		amp_ctrl.set(0.0f);
+		int i = object->f_id;
+		amps[i].set(0.0f);
 	}
 };
 
