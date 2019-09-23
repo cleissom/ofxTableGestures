@@ -39,8 +39,12 @@
 #include "OnlySimulator.h"
 
 
+#ifdef PC
 
 #define ONLY_SIMULATOR
+
+#endif // PC
+
 
 #ifdef ONLY_SIMULATOR
 #undef NO_SIMULATOR
