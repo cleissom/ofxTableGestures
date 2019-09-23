@@ -110,7 +110,7 @@ void TableApp::setup(){
     ///starts the tuioinput thread
     //tuio::tuioinput::Instance().init();
     ofSetWindowTitle(win_name + "\t press 'h' to show help content");
-    ofBackground(0, 0, 0);
+    ofBackground(0, 0, 30);
     ofHideCursor();
     #ifdef ONLY_SIMULATOR
         toggleSimulator();

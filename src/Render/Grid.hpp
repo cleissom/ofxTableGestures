@@ -45,6 +45,7 @@ class Grid{
         void Resize();
     private:
         int getLineLength();
+		void drawLines();
         void CallList1();
         void CallList2();
         void CallList3();

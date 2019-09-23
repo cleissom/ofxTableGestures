@@ -4,7 +4,7 @@
 class OscOptionalUnpacker
 {
     ofxOscMessage & msg;
-    int n;
+    size_t n;
     public:
     OscOptionalUnpacker(ofxOscMessage & m):msg(m),n(0){}
     OscOptionalUnpacker & operator >> (int & i)

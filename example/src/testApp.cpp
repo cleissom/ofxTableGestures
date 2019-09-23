@@ -11,59 +11,103 @@
 #include "FigureGraphic.hpp"
 #include "Alarm.hpp"
 
-class SlideSynth : public pdsp::Patchable {
 
-public:
+class SoundDispatcher : public EventClient {
+	pdsp::Engine            engine;
+	std::map<int, TableObject*> TableObjects;
+	std::map<int, DirectObject *> ObjectsOnTable;
 
-	SlideSynth() { patch(); } // default constructor
-	SlideSynth(const SlideSynth & other) { patch(); } // you need this to use std::vector with your class, otherwise will not compile
-	// remember that is a bad thing to copy construct in pdsp, 
-	//      always just resize the vector and let the default constructor do the work
-	//          resizing the vector will also disconnect everything, so do it just once before patching
+public: 
+	SoundDispatcher() {
+		TableObjects.insert(std::make_pair(0, new Generator(0)));
+		TableObjects.insert(std::make_pair(1, new Generator(1)));
+		TableObjects.insert(std::make_pair(2, new Effects(2)));
+		TableObjects.insert(std::make_pair(3, new Effects(3)));
 
+		registerEvent(InputGestureDirectFingers::I().enterCursor, &SoundDispatcher::addCursor, this);
 
-	void patch() {
+		registerEvent(InputGestureDirectObjects::I().newObject, &SoundDispatcher::newObject, this);
+		registerEvent(InputGestureDirectObjects::I().enterObject, &SoundDispatcher::enterObject, this);
+		registerEvent(InputGestureDirectObjects::I().updateObject, &SoundDispatcher::updateObject, this);
+		registerEvent(InputGestureDirectObjects::I().removeObject, &SoundDispatcher::exitObject, this);
 
-		//create inputs/outputs to be used with the in("tag") and out("tag") methods
-		addModuleInput("pitch", osc.in_pitch()); // the first input added is the default input
-		addModuleInput("amp", y_ctrl);
-		addModuleInput("filter", filter_cutoff);
-		addModuleOutput("signal", amp); // the first output added is the default output
+		//------------SETUPS AND START AUDIO-------------
+#ifdef PC
+		engine.setDeviceID(1);
+#else
+		engine.setDeviceID(0);
+#endif // PC
 
+		engine.setup(44100, 512, 3);
 
-		// pdsp::PatchNode is a class that simply route its inputs to its output
-		y_ctrl.enableBoundaries(0.0f, 1.0f); // you can clip the input of pdsp::PatchNode
-		y_ctrl.set(0.0f); // and you can set its input default value
-
-		//patching
-		osc.out_saw() * 2.0f >> drive >> filter >> amp;
-		y_ctrl >> amp.in_mod();
-		filter_cutoff >> filter.in_cutoff();
-		0.3f >> filter.in_reso();
+	}
+	void addCursor(InputGestureDirectFingers::newCursorArgs & a) {
+		cout << "Add cursor" << endl;
 	}
 
-	// those are optional
-	pdsp::Patchable & in_pitch() {
-		return in("pitch");
+	void updateCursor(InputGestureDirectFingers::updateCursorArgs & a) {
+		cout << "Update cursor" << endl;
 	}
 
-	pdsp::Patchable & in_amp() {
-		return in("amp");
+
+	void newObject(InputGestureDirectObjects::newObjectArgs& a) {
+		cout << "New object" << endl;
+		int id = a.object->f_id;
+		ObjectsOnTable[id] = a.object;
 	}
 
-	pdsp::Patchable & out_signal() {
-		return out("signal");
+	void enterObject(InputGestureDirectObjects::enterObjectArgs& a) {
+		cout << "Enter object" << endl;
+		int id = a.object->f_id;
+
+		int somethingAhead = hasSomethingAhead(ObjectsOnTable[id]);
+		int somethingBehind = hasSomethingBehind(ObjectsOnTable[id]);
+
+		if (somethingAhead != -1) {
+			*TableObjects[id] >> *TableObjects[somethingAhead];
+			cout << "Something ahead" << endl;
+		}
+		else {
+			*TableObjects[id] >> engine.audio_out(0);
+			*TableObjects[id] >> engine.audio_out(1);
+		}
+
+		if (somethingBehind != -1) {
+			TableObjects[somethingBehind]->disconnectOut();
+			*TableObjects[somethingBehind] >> *TableObjects[id];
+			cout << "Something behind" << endl;
+		}
+		
+
 	}
 
-private:
-	pdsp::PatchNode     filter_cutoff;
-	pdsp::PatchNode     y_ctrl;
-	pdsp::PatchNode     pitch_ctrl;
-	pdsp::Amp           amp;
-	pdsp::VAOscillator  osc;
-	pdsp::Saturator1    drive; // distort the signal
-	pdsp::VAFilter      filter; // 24dB multimode filter
+	int hasSomethingAhead(DirectObject* obj) {
+		for (std::map<int, DirectObject *>::iterator it = ObjectsOnTable.begin(); it != ObjectsOnTable.end(); ++it) {
+			if (obj != it->second)
+				if (it->second->getX() > obj->getX() && ((it->second->getY() >= 0.5f && obj->getY() >= 0.5f) || (it->second->getY() < 0.5f && obj->getY() < 0.5f))) return it->first;
+		}
+		return -1;
+	}
+	int hasSomethingBehind(DirectObject* obj) {
+		for (std::map<int, DirectObject *>::iterator it = ObjectsOnTable.begin(); it != ObjectsOnTable.end(); ++it) {
+			if (obj != it->second)
+				if (it->second->getX() < obj->getX() && ((it->second->getY() >= 0.5f && obj->getY() >= 0.5f) || (it->second->getY() < 0.5f && obj->getY() < 0.5f))) return it->first;
+		}
+		return -1;
+	}
 
+	void updateObject(InputGestureDirectObjects::updateObjectArgs& a) {
+		int id = a.object->f_id;
+		cout << ObjectsOnTable[id]->getX() << endl;
+	}
+
+	void exitObject(InputGestureDirectObjects::exitObjectArgs& a) {
+		cout << "Exit object" << endl;
+		int id = a.object->f_id;
+		ObjectsOnTable.erase(id);
+		TableObjects[id]->disconnectOut();
+	}
+	
 };
 
 class Test2 : public CanDirectObjects<Graphic> {
@@ -77,34 +121,16 @@ class Test2 : public CanDirectObjects<Graphic> {
 	pdsp::Amp               amp;
 	pdsp::ADSR              env;
 	pdsp::TriggerControl    gate_ctrl;
-	SlideSynth          synth;
 
-	std::vector<SlideSynth> synths;
 	std::vector<pdsp::ValueControl>    pitches;
 	std::vector<pdsp::LFO>          drift_lfo;
 	std::vector <pdsp::ValueControl>               amps;
 	std::vector<pdsp::ValueControl>      filters;
 
+	int choice = 0;
+
 public:
 	Test2() {
-
-		synths.resize(3);
-		pitches.resize(synths.size());
-		filters.resize(synths.size());
-		amps.resize(synths.size());
-
-		for (size_t i = 0; i < synths.size(); ++i) {
-
-			pitches[i] >> synths[i].in("pitch");
-			amps[i] >> synths[i].in_amp();
-			filters[i] >> synths[i].in("filter");
-
-			synths[i] >> engine.audio_out(0);
-			synths[i] >> engine.audio_out(1);
-		}
-
-
-
 		/*
 		pitch_ctrl >> synth.in("pitch"); // patching with in("tag")
 		amp_ctrl >> synth.in_amp(); // patching with custom in_tag()
@@ -118,20 +144,10 @@ public:
 		amp_ctrl.set(0.0f);
 		amp_ctrl.enableSmoothing(50.0f); // 50ms smoothing
 		*/
-		
-
-
-		//------------SETUPS AND START AUDIO-------------
-#ifdef PC
-		engine.setDeviceID(1);
-#else
-		engine.setDeviceID(0);
-#endif // PC
-
-		engine.setup(44100, 512, 3);
 	}
 
 	void newObject(DirectObject * object) {
+		/*
 		int i = object->f_id;
 		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 84.0f);
 		pitches[i].set(pitch);
@@ -139,22 +155,16 @@ public:
 		amps[i].set(amp);
 		float freq = ofMap(object->angle, 0, M_2PI, 50.0f, 150.0f);
 		filters[i].set(freq);
+		*/
 	}
 
 	void updateObject(DirectObject * object) {
-		int i = object->f_id;
-		float pitch = ofMap(object->getX(), 0, 1.0f, 36.0f, 84.0f);
-		pitches[i].set(pitch);
-		float amp = ofMap(object->getY(), 0, 1.0f, 1.5f, 0.0f);
-		amps[i].set(amp);
-		float freq = ofMap(object->angle, 0, M_2PI, 50.0f, 150.0f);
-		filters[i].set(freq);
+
 
 	}
 
 	void removeObject(DirectObject * object) {
-		int i = object->f_id;
-		amps[i].set(0.0f);
+		osc.disconnectAll();
 	}
 };
 
@@ -229,9 +239,6 @@ class Test: public Graphic
     }
 };
 
-void testApp::pitch(float arg) {
-	
-}
 //--------------------------------------------------------------
 void testApp::setup(){
 
@@ -243,9 +250,15 @@ void testApp::setup(){
     new FigureFeedback();
     new TapFeedback();
     new LongPushFeedback();
-	new Test2();
+	//new Test2();
+	new SoundDispatcher();
 
-	
+
+	//gen >> engine.audio_out(0);
+	//gen >> engine.audio_out(1);
+
+
+
 }
 
 //--------------------------------------------------------------

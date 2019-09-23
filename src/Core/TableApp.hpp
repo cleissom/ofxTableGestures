@@ -38,6 +38,10 @@
 #include <string>
 #include "OnlySimulator.h"
 
+
+
+#define ONLY_SIMULATOR
+
 #ifdef ONLY_SIMULATOR
 #undef NO_SIMULATOR
 #endif //ONLY_SIMULATOR

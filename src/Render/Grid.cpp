@@ -74,6 +74,19 @@ int Grid::getLineLength(){
     if(width>height)
     {
         linelength = height;
+    }else
+    {
+        linelength = width;
+    }
+    return linelength;
+
+}void Grid::drawLines(){
+    int width = ofGetWidth();
+    int height = ofGetHeight();
+    int linelength;
+    if(width>height)
+    {
+        linelength = height;
         glTranslatef((width-height)/2,0,0);
         for (int i =0; i<=w_lines; i++)
             ofDrawLine( i*(linelength/w_lines) ,  0 , i*(linelength/w_lines), linelength);
@@ -88,12 +101,9 @@ int Grid::getLineLength(){
         for (int i =0; i<=h_lines; i++)
             ofDrawLine(0, i*(linelength/h_lines) , linelength, i*(linelength/h_lines));
     }
-    return linelength;
 }
 
 void Grid::CallList1(){
-    int width = ofGetWidth();
-    int height = ofGetHeight();
     ofSetColor(255,255,255);
     ofSetLineWidth(4.0f);
     int linelength = getLineLength();
@@ -101,7 +111,8 @@ void Grid::CallList1(){
     ofPushMatrix();
     ///Draws the line-grid depending the dimensions of the screen,
     ///for the reactable, the grid must be square shaped.
-    
+	drawLines();
+
     ofNoFill();
     ///Draws the helping circles of the grid.
     ofSetCircleResolution(60);
