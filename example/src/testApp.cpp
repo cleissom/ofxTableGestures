@@ -11,9 +11,10 @@
 #include "FigureGraphic.hpp"
 #include "Alarm.hpp"
 
+const int OUTPUT = 216;
 
 class SoundDispatcher : public EventClient {
-	pdsp::Engine            engine;
+	
 	std::map<int, TableObject*> TableObjects;
 	std::map<int, DirectObject *> ObjectsOnTable;
 
@@ -23,6 +24,7 @@ public:
 		TableObjects.insert(std::make_pair(1, new Generator(1)));
 		TableObjects.insert(std::make_pair(2, new Effects(2)));
 		TableObjects.insert(std::make_pair(3, new Effects(3)));
+		TableObjects.insert(std::make_pair(OUTPUT, new Output(OUTPUT)));
 
 		registerEvent(InputGestureDirectFingers::I().enterCursor, &SoundDispatcher::addCursor, this);
 
@@ -31,14 +33,7 @@ public:
 		registerEvent(InputGestureDirectObjects::I().updateObject, &SoundDispatcher::updateObject, this);
 		registerEvent(InputGestureDirectObjects::I().removeObject, &SoundDispatcher::exitObject, this);
 
-		//------------SETUPS AND START AUDIO-------------
-#ifdef PC
-		engine.setDeviceID(1);
-#else
-		engine.setDeviceID(0);
-#endif // PC
-
-		engine.setup(44100, 512, 3);
+		
 
 	}
 	void addCursor(InputGestureDirectFingers::newCursorArgs & a) {
@@ -54,6 +49,7 @@ public:
 		cout << "New object" << endl;
 		int id = a.object->f_id;
 		ObjectsOnTable[id] = a.object;
+		TableObjects[id]->dobj = a.object;
 	}
 
 	void enterObject(InputGestureDirectObjects::enterObjectArgs& a) {
@@ -68,13 +64,12 @@ public:
 			cout << "Something ahead" << endl;
 		}
 		else {
-			*TableObjects[id] >> engine.audio_out(0);
-			*TableObjects[id] >> engine.audio_out(1);
+			TableObjects[id]->connectTo(TableObjects[OUTPUT]);
 		}
 
 		if (somethingBehind != -1) {
 			TableObjects[somethingBehind]->disconnectOut();
-			*TableObjects[somethingBehind] >> *TableObjects[id];
+			TableObjects[somethingBehind]->connectTo(TableObjects[id]);
 			cout << "Something behind" << endl;
 		}
 		
@@ -106,6 +101,7 @@ public:
 		int id = a.object->f_id;
 		ObjectsOnTable.erase(id);
 		TableObjects[id]->disconnectOut();
+		TableObjects[id]->dobj = nullptr;
 	}
 	
 };
@@ -268,8 +264,6 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     tableapp.draw();
-
-
 }
 
 //--------------------------------------------------------------

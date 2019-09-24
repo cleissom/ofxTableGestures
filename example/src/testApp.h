@@ -14,43 +14,22 @@
 #include "InputGestureDirectObjects.hpp"
 #include "Alarm.hpp"
 
+class Generator;
+class Effects;
+class Output;
+
 class TableObject : public pdsp::Patchable, public Graphic {
-private:
-
 public:
-	DirectObject* object;
-
-	TableObject() {
-
+	TableObject(int id = -1) : id(id), dobj(nullptr), followingObj(nullptr) {
+		registerEvent(InputGestureDirectFingers::I().enterCursor, &TableObject::addCursor, this);
+		registerEvent(InputGestureDirectObjects::I().updateObject, &TableObject::updateObject, this);
 	}
-};
 
-class Generator : public TableObject {
-
-public:
-
-	Generator(int id = 0): id(id) {
-		patch();
-		registerEvent(InputGestureDirectFingers::I().enterCursor, &Generator::addCursor, this);
-		registerEvent(InputGestureDirectObjects::I().updateObject, &Generator::updateObject, this);
-	} // default constructor
-	Generator(const Generator & other) { patch(); } // you need this to use std::vector with your class, otherwise will not compile
-	// remember that is a bad thing to copy construct in pdsp, 
-	//      always just resize the vector and let the default constructor do the work
-	//          resizing the vector will also disconnect everything, so do it just once before patching
-
-
-	void patch() {
-
-		//create inputs/outputs to be used with the in("tag") and out("tag") methods
-		addModuleInput("input", input); // the first input added is the default input
-		addModuleOutput("signal", amp); // the first output added is the default output
-
-
-		//patching
-		osc.out_saw() >> amp;
-		pitch_ctrl >> osc.in_pitch();
-		amp.set(1.0f);
+	void updateTurnMultiplier(float angle) {
+		float derivative = angle - rawAngleLastValue;
+		if (derivative > derivativeThreshold) turnsMultiplier--;
+		else if (derivative < (-derivativeThreshold)) turnsMultiplier++;
+		rawAngleLastValue = angle;
 	}
 
 	void addCursor(InputGestureDirectFingers::newCursorArgs & a) {
@@ -60,16 +39,79 @@ public:
 	void updateObject(InputGestureDirectObjects::updateObjectArgs& a) {
 		int id = a.object->f_id;
 		if (id == this->id) {
-			cout << a.object->angle << endl;
-			float pitch = ofMap(a.object->angle, 0, M_2PI, 36.0f, 80.0f);
-			pitch_ctrl.set(pitch);
+			float rawAngle = a.object->angle;
+			updateTurnMultiplier(rawAngle);
+			float angle = turnsMultiplier * M_2PI + rawAngle;
+			cout << angle << endl;
+			updateAngleValue(angle);
 		}
 	}
 
-	
+
+	template <typename T>
+	void connectToIfType(TableObject* node) {
+		if (auto cast_node = dynamic_cast<T*> (node)) {
+			*this >> *cast_node;
+			followingObj = node;
+		}
+	}
+
+	void connectTo(TableObject* node) {
+		connectToIfType<Effects>(node);
+		connectToIfType<Output>(node);
+
+	}
+
+	void draw() {
+		ofSetColor(255);
+		ofSetLineWidth(10);
+		if (dobj && followingObj) {
+			ofDrawLine(dobj->getX(), dobj->getY(), followingObj->dobj->getX(), followingObj->dobj->getY());
+		}
+	}
+
+
+
+	virtual void updateAngleValue(float angle) {};
+
+	DirectObject* dobj;
+protected:
 
 private:
-	int id;
+	int		id;
+	float	rawAngleLastValue;
+	int		turnsMultiplier = 1;
+	const float derivativeThreshold = 1.0f;
+	TableObject* followingObj;
+	vector<TableObject*> precedingObjs;
+};
+
+class Generator : public TableObject {
+
+public:
+
+	Generator(int id = -1) : TableObject(id) {
+		patch();
+	}
+	Generator(const Generator & other) { patch(); } // you need this to use std::vector with your class, otherwise will not compile
+
+	void patch() {
+		addModuleInput("input", input);
+		addModuleOutput("signal", amp);
+
+		//patching
+		osc.out_saw() >> amp;
+		pitch_ctrl >> osc.in_pitch();
+		amp.set(1.0f);
+	}	
+
+	void updateAngleValue(float angle) {
+		float pitch = ofMap(angle, 0, 5.0f * M_2PI, 36.0f, 96.0f);
+		pitch_ctrl.set(pitch);
+	}
+
+
+private:
 	pdsp::PatchNode     input;
 	pdsp::ValueControl     pitch_ctrl;
 	pdsp::Amp           amp;
@@ -80,20 +122,15 @@ class Effects : public TableObject {
 
 public:
 
-	Effects(int id) : id(id) {
+	Effects(int id = -1) : TableObject(id) {
 		patch();
-		registerEvent(InputGestureDirectFingers::I().enterCursor, &Effects::addCursor, this);
-		registerEvent(InputGestureDirectObjects::I().updateObject, &Effects::updateObject, this);
 	}
 	Effects(const Effects  & other) { patch(); } // you need this to use std::vector with your class, otherwise will not compile
 
 
 	void patch() {
-
-		//create inputs/outputs to be used with the in("tag") and out("tag") methods
-		addModuleInput("input", input); // the first input added is the default input
-		addModuleOutput("output", amp); // the first output added is the default output
-
+		addModuleInput("input", input);
+		addModuleOutput("output", amp);
 
 		input >> filter >> amp;
 		cutoff_ctrl >> filter.in_cutoff();
@@ -104,21 +141,66 @@ public:
 		cout << "cursor input" << endl;
 	}
 
-	void updateObject(InputGestureDirectObjects::updateObjectArgs& a) {
-		int id = a.object->f_id;
-		if (id == this->id) {
-			cout << a.object->angle << endl;
-			float cutoff = ofMap(a.object->angle, 0, M_2PI, 10.0f, 120.0f);
-			cutoff_ctrl.set(cutoff);
-		}
+	void updateAngleValue(float angle) {
+		float cutoff = ofMap(angle, 0, 2.0f * M_2PI, 48.0f, 96.0f);
+		cutoff_ctrl.set(cutoff);
 	}
 
 private:
-	int id;
 	pdsp::PatchNode     input;
 	pdsp::Amp           amp;
 	pdsp::ValueControl	cutoff_ctrl;
 	pdsp::VAFilter      filter; // 24dB multimode filter
+
+};
+
+class Output : public TableObject {
+
+public:
+
+	Output(int id = -1) : TableObject(id) {
+		dobj = new DirectObject();
+		dobj->s_id = -1;
+		dobj->f_id = id;
+		dobj->setX(0.85f);
+		dobj->setY(0.5f);
+		dobj->angle = 0;
+		dobj->xspeed = 0;
+		dobj->yspeed = 0;
+		dobj->rspeed = 0;
+		dobj->maccel = 0;
+		dobj->raccel = 0;
+
+		patch();
+	}
+	Output(const Output  & other) { patch(); } // you need this to use std::vector with your class, otherwise will not compile
+
+
+	void patch() {
+		addModuleInput("input", input);
+
+		//------------SETUPS AND START AUDIO-------------
+#ifdef PC
+		engine.setDeviceID(1);
+#else
+		engine.setDeviceID(0);
+#endif // PC
+
+		engine.setup(44100, 512, 3);
+
+		input >> engine.audio_out(0);
+		input >> engine.audio_out(1);
+	}
+
+	void draw() {
+		ofFill();
+		ofDrawCircle(dobj->getX(),dobj->getY(), 0.03f);
+		ofDrawLine(0.0f, 0.5f, 1.0f, 0.5f);
+	}
+
+private:
+	pdsp::Engine        engine;
+	pdsp::PatchNode     input;
 
 };
 
