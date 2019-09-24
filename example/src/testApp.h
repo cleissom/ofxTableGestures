@@ -16,6 +16,8 @@
 
 class Generator;
 class Effects;
+class Controller;
+class Global;
 class Output;
 
 class TableObject : public pdsp::Patchable, public Graphic {
@@ -53,6 +55,7 @@ public:
 		if (auto cast_node = dynamic_cast<T*> (node)) {
 			*this >> *cast_node;
 			followingObj = node;
+			node->precedingObj = this;
 		}
 	}
 
@@ -60,6 +63,16 @@ public:
 		connectToIfType<Effects>(node);
 		connectToIfType<Output>(node);
 
+	}
+
+	void remove() {
+		if (precedingObj) {
+			precedingObj->disconnectOut();
+			followingObj->disconnectIn();
+			*precedingObj >> *followingObj;
+			precedingObj->followingObj = followingObj;
+		}
+		this->disconnectAll();
 	}
 
 	void draw() {
@@ -79,11 +92,11 @@ protected:
 
 private:
 	int		id;
-	float	rawAngleLastValue;
+	float	rawAngleLastValue = 0.0f;
 	int		turnsMultiplier = 1;
 	const float derivativeThreshold = 1.0f;
 	TableObject* followingObj;
-	vector<TableObject*> precedingObjs;
+	TableObject* precedingObj = nullptr;
 };
 
 class Generator : public TableObject {
@@ -113,7 +126,7 @@ public:
 
 private:
 	pdsp::PatchNode     input;
-	pdsp::ValueControl     pitch_ctrl;
+	pdsp::ValueControl  pitch_ctrl;
 	pdsp::Amp           amp;
 	pdsp::VAOscillator  osc;
 };
@@ -162,7 +175,7 @@ public:
 		dobj = new DirectObject();
 		dobj->s_id = -1;
 		dobj->f_id = id;
-		dobj->setX(0.85f);
+		dobj->setX(1.0f);
 		dobj->setY(0.5f);
 		dobj->angle = 0;
 		dobj->xspeed = 0;

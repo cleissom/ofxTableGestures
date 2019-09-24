@@ -37,11 +37,9 @@ public:
 
 	}
 	void addCursor(InputGestureDirectFingers::newCursorArgs & a) {
-		cout << "Add cursor" << endl;
 	}
 
 	void updateCursor(InputGestureDirectFingers::updateCursorArgs & a) {
-		cout << "Update cursor" << endl;
 	}
 
 
@@ -60,7 +58,7 @@ public:
 		int somethingBehind = hasSomethingBehind(ObjectsOnTable[id]);
 
 		if (somethingAhead != -1) {
-			*TableObjects[id] >> *TableObjects[somethingAhead];
+			TableObjects[id]->connectTo(TableObjects[somethingAhead]);
 			cout << "Something ahead" << endl;
 		}
 		else {
@@ -68,7 +66,6 @@ public:
 		}
 
 		if (somethingBehind != -1) {
-			TableObjects[somethingBehind]->disconnectOut();
 			TableObjects[somethingBehind]->connectTo(TableObjects[id]);
 			cout << "Something behind" << endl;
 		}
@@ -92,15 +89,13 @@ public:
 	}
 
 	void updateObject(InputGestureDirectObjects::updateObjectArgs& a) {
-		int id = a.object->f_id;
-		cout << ObjectsOnTable[id]->getX() << endl;
 	}
 
 	void exitObject(InputGestureDirectObjects::exitObjectArgs& a) {
 		cout << "Exit object" << endl;
 		int id = a.object->f_id;
 		ObjectsOnTable.erase(id);
-		TableObjects[id]->disconnectOut();
+		TableObjects[id]->remove();
 		TableObjects[id]->dobj = nullptr;
 	}
 	
@@ -248,12 +243,6 @@ void testApp::setup(){
     new LongPushFeedback();
 	//new Test2();
 	new SoundDispatcher();
-
-
-	//gen >> engine.audio_out(0);
-	//gen >> engine.audio_out(1);
-
-
 
 }
 
