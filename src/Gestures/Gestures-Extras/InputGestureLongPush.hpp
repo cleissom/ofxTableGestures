@@ -42,6 +42,7 @@ class InputGestureLongPush: public EventClient , public Singleton<InputGestureLo
     float & maxdistance;
     float & mintime;
     std::map< DirectFinger *,  std::pair < DirectPoint , float > > previous;
+    std::map< DirectFinger *,  Graphic* > previousTargets;
 public:
     struct LongPushTrigerArgs : public EventArgs
     {
@@ -62,6 +63,7 @@ public:
         DirectFinger * f = a.finger;
         float now = ofGetElapsedTimef();
         previous[f]= make_pair(DirectPoint(f->getX(),f->getY()),now);
+		previousTargets[f] = a.target;
         Alarm::Setup(now+mintime,this,&InputGestureLongPush::update);
     }
 
@@ -75,8 +77,10 @@ public:
                 LongPushTrigerArgs eventargs;
                 eventargs.x = iter->first->getX();
                 eventargs.y = iter->first->getY();
+				eventargs.target = previousTargets[iter->first];
                 ofNotifyEvent(LongPushTriger,eventargs);
 
+				previousTargets.erase(iter->first);
                 previous.erase(iter++);
             }
             else
@@ -93,6 +97,7 @@ public:
             if (previous[f].first.getDistance(f) > maxdistance)
             {
                 previous.erase(f);
+				previousTargets.erase(f);
             }
         }
     }
@@ -102,6 +107,7 @@ public:
         if(previous.find(f) != previous.end())
         {
             previous.erase(f);
+			previousTargets.erase(f);
         }
     }
 
