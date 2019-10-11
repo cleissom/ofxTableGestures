@@ -1,9 +1,5 @@
-ofxOsc
-ofxXmlSettings
-ofx2DFigures
-ofxAudioFile
-ofxGlobalConfig
-ofxMidi
-ofxPDSP
-ofxPoco
 ofxTableGestures
+ofxOsc
+ofxGlobalConfig
+ofx2DFigures
+ofxXmlSettings
