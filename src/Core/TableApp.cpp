@@ -270,6 +270,7 @@ void TableApp::keyReleased(ofKeyEventArgs & event){
         case 'f':
             ofToggleFullscreen();
         break;
+		case ',':
         case 'c':
             if(renderer->IsEnabled()){
                 renderer->SaveDistortion();
