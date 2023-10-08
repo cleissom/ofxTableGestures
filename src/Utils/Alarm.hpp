@@ -53,7 +53,7 @@ private:
         
         struct CompareSchedule
         {
-            bool operator()(const schedule & s1, const schedule & s2)
+            bool operator()(const schedule & s1, const schedule & s2) const
             {
                 if(s1.time == s2.time)
                     return &s1 < &s2;
@@ -65,7 +65,7 @@ private:
         {
             float now;
             IsNotOutdated(float t):now(t){}
-            bool operator() (const schedule & s)
+            bool operator() (const schedule & s) const
             {
                 return s.time > now;
             }
@@ -85,7 +85,7 @@ private:
         {
             void * li;
             IsListener(void * l):li(l){}
-            bool operator()(const schedule & s)
+            bool operator()(const schedule & s) const
             {
                 return s.target == li;
             }
